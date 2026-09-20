@@ -1,67 +1,46 @@
 # Brave Tab Standby
 
-Brave Tab Standby v0.5.0 is a small Manifest V3 extension for Brave and Chrome. It discards background tabs after a configurable delay, while leaving their tab, title, and site icon in the tab strip. Opening a discarded tab reloads the page.
+Brave Tab Standby v0.5.0 frees RAM by unloading inactive browser tabs. The tab stays visible; opening it reloads the page.
 
-The browser extension must use JavaScript because Chrome's extension APIs are JavaScript APIs. This repository is also a Python project: the dependency-free `standby_tool.py` validates, tests, and packages the extension.
+## Download and install
 
-## Install locally
+[Download v0.5.0](https://github.com/FelixZimmermannDev/brave-tab-standby/releases/download/v0.5.0/brave-tab-standby-v0.5.0.zip)
 
-**One-click download:** [Download `brave-tab-standby-v0.5.0.zip`](https://github.com/FelixZimmermannDev/brave-tab-standby/releases/download/v0.5.0/brave-tab-standby-v0.5.0.zip)
+The ZIP is always named after its release version: `brave-tab-standby-v0.5.0.zip`. Extract it into the equally versioned folder `brave-tab-standby-v0.5.0-extension` and select that folder in Brave.
 
-Do not use GitHub's **Code → Download ZIP** button. That downloads the source repository as `brave-tab-standby-main.zip`; its `manifest.json` is inside the `extension` folder and it is not the packaged install file.
-
-Or download and extract it from a terminal:
-
-```sh
-curl -fL -o brave-tab-standby-v0.5.0.zip 'https://github.com/FelixZimmermannDev/brave-tab-standby/releases/download/v0.5.0/brave-tab-standby-v0.5.0.zip'
-unzip brave-tab-standby-v0.5.0.zip -d brave-tab-standby-v0.5.0-extension
-```
-
-Then install it in Brave:
-
-1. Extract the ZIP if you downloaded it by clicking the link. Keep the extracted folder; it must contain `manifest.json` directly.
-2. Open `brave://extensions` (or `chrome://extensions`).
+1. Extract the ZIP.
+2. Open `brave://extensions`.
 3. Enable **Developer mode**.
 4. Click **Load unpacked** and select the extracted folder containing `manifest.json`.
-5. Click the extension icon, enable **Automatic standby**, choose a delay, and click **Save settings**. The default delay is five minutes.
 
-If you clone this repository instead, select its `extension` folder in step 4. Do not select the ZIP file itself; Brave needs the extracted folder.
+Do not use GitHub's **Code → Download ZIP** button. That is source code, not the install package.
 
-The extension starts paused until you enable it. Choose **Instantly** to process all already-open eligible background tabs as soon as you save the setting; otherwise select a delay from 30 seconds to 30 minutes. Pinned tabs are included by default. Audible tabs, browser internal pages, sites in the exception list, and individually protected tabs are skipped. Use **Keep current tab awake** in the popup to protect one exact tab; the exception is saved locally and can be removed there. A manual **Discard inactive tabs now** button helps you test it. Discarding a tab unloads its renderer process where that renderer is not shared with another tab.
+## Use
 
-## Resource behavior
+Open the blue percent-arrow icon in the browser toolbar. Enable **Automatic standby**, choose a delay, then save.
 
-Version 0.5.0 adds a blue transparent percent-arrow toolbar icon for RAM savings. It retains the low-overhead scheduler from v0.4.0: one one-time alarm at the earliest tab expiry instead of permanent 30-second polling. When standby is off or set to **Instantly**, it clears that alarm entirely, allowing its Manifest V3 service worker to become dormant. A one-time alarm still respects Chrome's 30-second minimum when a retry is necessary.
+- **Instantly** unloads eligible background tabs as soon as you leave them.
+- **Discard inactive tabs now** runs the same action manually.
+- Active, protected, excepted, internal, and optionally audible tabs stay loaded.
 
-## Python harness
+## Update
 
-Requires Python 3.10+ and Node.js 18+; no packages to install.
+Each release has a new versioned ZIP. Download the newest release, extract it, then reload or re-add its folder in `brave://extensions`.
+
+For development, clone the repository and update it with:
 
 ```sh
-python3 standby_tool.py check
+git pull origin main
+```
+
+Then click **Reload** for the local extension in `brave://extensions`.
+
+## Development
+
+```sh
 python3 standby_tool.py test
 python3 standby_tool.py browser-test
 python3 standby_tool.py package
 ```
 
-The last command writes a ZIP to `dist/` for local sharing and prints its SHA-256 checksum. Packaging verifies that the Python project and extension use the same version. The Python test harness runs the JavaScript scheduler against a fake browser API, including instant and delayed standby, tab switching, pinned tabs, site and individual-tab exceptions, subdomain matching, audio, and reactivation.
-
-## Release checklist
-
-1. Update the version in `extension/manifest.json`, `pyproject.toml`, and the two versioned links above.
-2. Run `python3 standby_tool.py test` and `python3 standby_tool.py package`.
-3. Create a GitHub release with tag `v<version>` and upload the versioned file `dist/brave-tab-standby-v<version>.zip`.
-
-`browser-test` launches an isolated headless Brave profile (macOS default path; override with `BRAVE_BINARY`), loads the unpacked extension, opens a 128 MiB test page, waits for automatic discard, and compares the browser process tree's RSS before and after. It then confirms that activating the tab reloads it. RSS is an approximate process metric; results vary with caching and shared memory.
-
-On the initial Mac test machine, two isolated runs reduced summed Brave-process RSS by 518 MiB and 505 MiB after the pinned test tab was discarded. These are test-page results, not a prediction for ordinary sites or an installed user profile.
-
-## Limits
-
-Chrome's `tabs.discard()` keeps a tab visible and reloads it on return. It cannot guarantee every site's own favicon is drawn while unloaded, nor can an extension terminate a specific process from Brave Task Manager. Some pages may refuse discarding. Unsubmitted form fields, live sessions, and in-page state may be lost when reloaded. The extension never reads page contents or sends data over the network.
-
-## References
-
-- [Chrome tabs API](https://developer.chrome.com/docs/extensions/reference/api/tabs)
-- [Chrome alarms API](https://developer.chrome.com/docs/extensions/reference/api/alarms)
-- [Chrome Manifest V3](https://developer.chrome.com/docs/extensions/reference/manifest)
+The test and package commands verify that the manifest, icon assets, package version, and README download URL all use the same version.

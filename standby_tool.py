@@ -12,6 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 EXTENSION = ROOT / "extension"
+README = ROOT / "README.md"
 REQUIRED = (
     "manifest.json", "background.js", "rules.js", "popup.html", "popup.js", "popup.css",
     "icons/icon-16.png", "icons/icon-32.png", "icons/icon-48.png", "icons/icon-128.png",
@@ -44,6 +45,13 @@ def check() -> None:
         raise ValueError("Manifest must declare the packaged extension icons")
     if manifest.get("action", {}).get("default_icon") != expected_icons:
         raise ValueError("Action must declare the packaged toolbar icons")
+    version = project_version()
+    expected_download = (
+        "https://github.com/FelixZimmermannDev/brave-tab-standby/"
+        f"releases/download/v{version}/brave-tab-standby-v{version}.zip"
+    )
+    if expected_download not in README.read_text(encoding="utf-8"):
+        raise ValueError("README download URL must match the current project version")
     print("Manifest and extension files: OK")
 
 
