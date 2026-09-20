@@ -6,7 +6,18 @@ The browser extension must use JavaScript because Chrome's extension APIs are Ja
 
 ## Install locally
 
-1. Download [`brave-tab-standby.zip` from the latest release](https://github.com/FelixZimmermannDev/brave-tab-standby/releases/latest) and extract it to a folder you will keep. The extracted folder must contain `manifest.json` directly.
+**One-click download:** [Download `brave-tab-standby.zip`](https://github.com/FelixZimmermannDev/brave-tab-standby/releases/latest/download/brave-tab-standby.zip)
+
+Or download and extract it from a terminal:
+
+```sh
+curl -fL -o brave-tab-standby.zip 'https://github.com/FelixZimmermannDev/brave-tab-standby/releases/latest/download/brave-tab-standby.zip'
+unzip brave-tab-standby.zip -d brave-tab-standby-extension
+```
+
+Then install it in Brave:
+
+1. Extract the ZIP if you downloaded it by clicking the link. Keep the extracted folder; it must contain `manifest.json` directly.
 2. Open `brave://extensions` (or `chrome://extensions`).
 3. Enable **Developer mode**.
 4. Click **Load unpacked** and select the extracted folder containing `manifest.json`.
