@@ -12,7 +12,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 EXTENSION = ROOT / "extension"
-REQUIRED = ("manifest.json", "background.js", "rules.js", "popup.html", "popup.js", "popup.css")
+REQUIRED = (
+    "manifest.json", "background.js", "rules.js", "popup.html", "popup.js", "popup.css",
+    "icons/icon-16.png", "icons/icon-32.png", "icons/icon-48.png", "icons/icon-128.png",
+)
 
 
 def project_version() -> str:
@@ -36,6 +39,11 @@ def check() -> None:
         raise ValueError("Expected background.js service worker")
     if manifest.get("version") != project_version():
         raise ValueError("Manifest and Python project versions must match")
+    expected_icons = {str(size): f"icons/icon-{size}.png" for size in (16, 32, 48, 128)}
+    if manifest.get("icons") != expected_icons:
+        raise ValueError("Manifest must declare the packaged extension icons")
+    if manifest.get("action", {}).get("default_icon") != expected_icons:
+        raise ValueError("Action must declare the packaged toolbar icons")
     print("Manifest and extension files: OK")
 
 

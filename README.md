@@ -1,20 +1,20 @@
 # Brave Tab Standby
 
-Brave Tab Standby v0.4.0 is a small Manifest V3 extension for Brave and Chrome. It discards background tabs after a configurable delay, while leaving their tab, title, and site icon in the tab strip. Opening a discarded tab reloads the page.
+Brave Tab Standby v0.5.0 is a small Manifest V3 extension for Brave and Chrome. It discards background tabs after a configurable delay, while leaving their tab, title, and site icon in the tab strip. Opening a discarded tab reloads the page.
 
 The browser extension must use JavaScript because Chrome's extension APIs are JavaScript APIs. This repository is also a Python project: the dependency-free `standby_tool.py` validates, tests, and packages the extension.
 
 ## Install locally
 
-**One-click download:** [Download `brave-tab-standby-v0.4.0.zip`](https://github.com/FelixZimmermannDev/brave-tab-standby/releases/download/v0.4.0/brave-tab-standby-v0.4.0.zip)
+**One-click download:** [Download `brave-tab-standby-v0.5.0.zip`](https://github.com/FelixZimmermannDev/brave-tab-standby/releases/download/v0.5.0/brave-tab-standby-v0.5.0.zip)
 
 Do not use GitHub's **Code → Download ZIP** button. That downloads the source repository as `brave-tab-standby-main.zip`; its `manifest.json` is inside the `extension` folder and it is not the packaged install file.
 
 Or download and extract it from a terminal:
 
 ```sh
-curl -fL -o brave-tab-standby-v0.4.0.zip 'https://github.com/FelixZimmermannDev/brave-tab-standby/releases/download/v0.4.0/brave-tab-standby-v0.4.0.zip'
-unzip brave-tab-standby-v0.4.0.zip -d brave-tab-standby-v0.4.0-extension
+curl -fL -o brave-tab-standby-v0.5.0.zip 'https://github.com/FelixZimmermannDev/brave-tab-standby/releases/download/v0.5.0/brave-tab-standby-v0.5.0.zip'
+unzip brave-tab-standby-v0.5.0.zip -d brave-tab-standby-v0.5.0-extension
 ```
 
 Then install it in Brave:
@@ -31,7 +31,7 @@ The extension starts paused until you enable it. Choose **Instantly** to process
 
 ## Resource behavior
 
-Version 0.4.0 uses one one-time alarm at the earliest tab expiry instead of a permanent 30-second polling alarm. When standby is off or set to **Instantly**, it clears that alarm entirely, allowing its Manifest V3 service worker to become dormant. A one-time alarm still respects Chrome's 30-second minimum when a retry is necessary.
+Version 0.5.0 adds a blue transparent percent-arrow toolbar icon for RAM savings. It retains the low-overhead scheduler from v0.4.0: one one-time alarm at the earliest tab expiry instead of permanent 30-second polling. When standby is off or set to **Instantly**, it clears that alarm entirely, allowing its Manifest V3 service worker to become dormant. A one-time alarm still respects Chrome's 30-second minimum when a retry is necessary.
 
 ## Python harness
 
