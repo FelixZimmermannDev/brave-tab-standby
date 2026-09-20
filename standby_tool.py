@@ -49,7 +49,7 @@ def test() -> None:
 
 def package() -> None:
     check()
-    destination = ROOT / "dist" / "brave-tab-standby.zip"
+    destination = ROOT / "dist" / f"brave-tab-standby-v{project_version()}.zip"
     destination.parent.mkdir(exist_ok=True)
     with zipfile.ZipFile(destination, "w", zipfile.ZIP_DEFLATED) as archive:
         for name in REQUIRED:
