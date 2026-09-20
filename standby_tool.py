@@ -48,10 +48,14 @@ def package() -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("check", "test", "package"))
+    parser.add_argument("command", choices=("check", "test", "browser-test", "package"))
     args = parser.parse_args()
     try:
-        {"check": check, "test": test, "package": package}[args.command]()
+        if args.command == "browser-test":
+            test()
+            subprocess.run(["node", str(ROOT / "tests" / "browser.test.js")], check=True)
+        else:
+            {"check": check, "test": test, "package": package}[args.command]()
     except (ValueError, OSError, subprocess.CalledProcessError) as error:
         print(error, file=sys.stderr)
         return 1
@@ -60,4 +64,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
