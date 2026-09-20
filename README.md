@@ -1,6 +1,6 @@
 # Brave Tab Standby
 
-A small Manifest V3 extension for Brave and Chrome. It discards background tabs after a configurable delay, while leaving their tab, title, and site icon in the tab strip. Opening a discarded tab reloads the page.
+Brave Tab Standby v0.4.0 is a small Manifest V3 extension for Brave and Chrome. It discards background tabs after a configurable delay, while leaving their tab, title, and site icon in the tab strip. Opening a discarded tab reloads the page.
 
 The browser extension must use JavaScript because Chrome's extension APIs are JavaScript APIs. This repository is also a Python project: the dependency-free `standby_tool.py` validates, tests, and packages the extension.
 
