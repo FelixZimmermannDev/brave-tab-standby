@@ -12,6 +12,7 @@
     <label class="row"><span>Automatic standby</span><input id="enabled" type="checkbox"></label>
     <label class="stack">After being inactive for
       <select id="delay">
+        <option value="0">Instantly</option>
         <option value="0.5">30 seconds</option>
         <option value="1">1 minute</option>
         <option value="5">5 minutes</option>
@@ -24,6 +25,12 @@
     <label class="stack">Sites to keep awake <small>One domain per line, e.g. music.example.com</small>
       <textarea id="exceptions" rows="3" spellcheck="false"></textarea>
     </label>
+    <section class="stack" aria-labelledby="tab-exceptions-label">
+      <span id="tab-exceptions-label">Tabs to keep awake</span>
+      <small>These exact tabs stay loaded; tab exceptions are saved on this device.</small>
+      <div id="tabExceptions" class="tab-list"></div>
+      <button id="addTabException" class="secondary" type="button">Keep current tab awake</button>
+    </section>
     <button id="save">Save settings</button>
     <button id="discard" class="secondary">Discard inactive tabs now</button>
     <p id="status" role="status"></p>
@@ -32,4 +39,3 @@
   <script src="popup.js"></script>
 </body>
 </html>
-

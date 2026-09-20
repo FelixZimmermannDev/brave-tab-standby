@@ -11,4 +11,8 @@ input[type="checkbox"] { accent-color: #ff694f; }
 button { width: 100%; padding: 9px; margin-top: 7px; border: 0; border-radius: 5px; background: #ff694f; color: #1b1514; font-weight: 700; cursor: pointer; }
 button.secondary { background: #424255; color: white; }
 #status { min-height: 1.2em; margin: 10px 0 0; color: #c8f0ce; }
-
+.tab-list { display: grid; gap: 6px; margin-top: 7px; }
+.tab-exception { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px; background: #292935; border-radius: 5px; }
+.tab-exception span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tab-exception button { width: auto; margin: 0; padding: 4px 7px; background: transparent; color: #ff9b88; }
+.empty { color: #b5b1c4; font-size: 12px; }

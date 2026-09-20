@@ -12,9 +12,10 @@ let tabs = [
   { id: 2, url: "https://news.example/", active: false, pinned: true, autoDiscardable: true },
   { id: 3, url: "https://music.example/", active: false, audible: true, autoDiscardable: true },
   { id: 4, url: "https://mail.example/", active: false, autoDiscardable: true },
-  { id: 5, url: "brave://settings/", active: false, autoDiscardable: true }
+  { id: 5, url: "brave://settings/", active: false, autoDiscardable: true },
+  { id: 6, url: "https://dashboard.example/", active: false, autoDiscardable: true }
 ];
-const local = { settings: { enabled: true, delayMinutes: 5, includePinned: true, skipAudible: true, exceptions: ["mail.example"] } };
+const local = { settings: { enabled: true, delayMinutes: 5, includePinned: true, skipAudible: true, exceptions: ["mail.example"], tabExceptions: [{ id: 6, title: "Pinned dashboard", url: "https://dashboard.example/" }] } };
 const session = {};
 const alarms = {};
 const discarded = [];
@@ -66,6 +67,7 @@ async function tick() {
   assert.equal(tabs[1].discarded, true);
   assert.equal(tabs[2].discarded, undefined, "audible tab stays awake");
   assert.equal(tabs[3].discarded, undefined, "exception stays awake");
+  assert.equal(tabs[5].discarded, undefined, "individual tab exception stays awake");
 
   tabs[0].active = false;
   tabs[1].active = true;
@@ -88,5 +90,11 @@ async function tick() {
   now = 1_500_000;
   await tick();
   assert.equal(tabs[0].discarded, true, "new countdown starts when enabled");
+  const rules = context.StandbyRules;
+  assert.equal(rules.normalizeSettings({ delayMinutes: 0 }).delayMinutes, 0, "instant delay is retained");
+  assert.equal(rules.shouldDiscard({ id: 9, url: "https://instant.example/", active: false, autoDiscardable: true }, rules.normalizeSettings({ delayMinutes: 0 }), now, now), true, "instant delay discards an existing inactive tab immediately");
+  assert.equal(rules.matchesTabException({ id: 6 }, local.settings.tabExceptions), true);
+  assert.equal(rules.matchesTabException({ id: 7 }, local.settings.tabExceptions), false);
+  assert.equal(rules.isEligible({ id: 8, url: "https://sub.mail.example/path", active: false, autoDiscardable: true }, local.settings), false, "subdomains inherit site exceptions");
   console.log("Scheduler integration tests: OK");
 })().catch(error => { console.error(error); process.exitCode = 1; });

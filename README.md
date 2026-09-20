@@ -25,7 +25,7 @@ Then install it in Brave:
 
 If you clone this repository instead, select its `extension` folder in step 4. Do not select the ZIP file itself; Brave needs the extracted folder.
 
-The extension starts paused until you enable it. Pinned tabs are included by default. Audible tabs, browser internal pages, and URLs in your exception list are skipped. A manual **Discard inactive tabs now** button helps you test it.
+The extension starts paused until you enable it. Choose **Instantly** to process all already-open eligible background tabs as soon as you save the setting; otherwise select a delay from 30 seconds to 30 minutes. Pinned tabs are included by default. Audible tabs, browser internal pages, sites in the exception list, and individually protected tabs are skipped. Use **Keep current tab awake** in the popup to protect one exact tab; the exception is saved locally and can be removed there. A manual **Discard inactive tabs now** button helps you test it.
 
 ## Python harness
 
@@ -38,7 +38,7 @@ python3 standby_tool.py browser-test
 python3 standby_tool.py package
 ```
 
-The last command writes a ZIP to `dist/` for local sharing and prints its SHA-256 checksum. Packaging verifies that the Python project and extension use the same version. The Python test harness runs the JavaScript scheduler against a fake browser API, including tab switching, five-minute delay, pinned tabs, exceptions, audio, and reactivation.
+The last command writes a ZIP to `dist/` for local sharing and prints its SHA-256 checksum. Packaging verifies that the Python project and extension use the same version. The Python test harness runs the JavaScript scheduler against a fake browser API, including instant and delayed standby, tab switching, pinned tabs, site and individual-tab exceptions, subdomain matching, audio, and reactivation.
 
 ## Release checklist
 

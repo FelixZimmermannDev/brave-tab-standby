@@ -62,7 +62,7 @@ async function connect(url) {
     },
     async evaluate(expression) {
       const response = await this.send("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true });
-      if (response.exceptionDetails) throw new Error(response.exceptionDetails.text);
+      if (response.exceptionDetails) throw new Error(JSON.stringify(response.exceptionDetails));
       return response.result.value;
     }
   };
@@ -95,22 +95,25 @@ async function connect(url) {
     cdp = await connect(worker.webSocketDebuggerUrl);
     const active = await cdp.evaluate(`chrome.tabs.create({url:'http://127.0.0.1:${port}/active',active:true})`);
     const idle = await cdp.evaluate(`chrome.tabs.create({url:'http://127.0.0.1:${port}/idle',active:false,pinned:true})`);
-    assert.ok(active.id && idle.id);
+    const protectedTab = await cdp.evaluate(`chrome.tabs.create({url:'http://127.0.0.1:${port}/protected',active:false})`);
+    assert.ok(active.id && idle.id && protectedTab.id);
     await until(async () => (await cdp.evaluate(`chrome.tabs.get(${idle.id})`)).status === "complete", 15000, "test tab load");
-    await cdp.evaluate("chrome.storage.local.set({settings:{enabled:true,delayMinutes:0.5,includePinned:true,skipAudible:true,exceptions:[]}})");
+    await until(async () => (await cdp.evaluate(`chrome.tabs.get(${protectedTab.id})`)).status === "complete", 15000, "protected test tab load");
     const before = rssMiB(browser.pid);
     const idleUrl = `http://127.0.0.1:${port}/idle`;
+    await cdp.evaluate(`chrome.storage.local.set({settings:{enabled:true,delayMinutes:0,includePinned:true,skipAudible:true,exceptions:[],tabExceptions:[{id:${protectedTab.id},title:'Protected test tab',url:'http://127.0.0.1:${port}/protected'}]}})`);
     const state = await until(async () => {
       const all = await cdp.evaluate("chrome.tabs.query({})");
       const tab = all.find(item => item.url === idleUrl);
       if (!tab) throw new Error(`Test tab disappeared: ${JSON.stringify(all.map(item => ({ id: item.id, url: item.url })))}`);
       return tab.discarded ? tab : false;
-    }, 70000, "automatic tab discard");
+    }, 15000, "instant discard of an existing tab");
     const after = rssMiB(browser.pid);
     assert.equal(state.pinned, true);
     assert.equal(state.url, idleUrl);
     assert.equal((await cdp.evaluate(`chrome.tabs.get(${active.id})`)).discarded, false);
-    console.log(JSON.stringify({ beforeMiB: before, afterMiB: after, deltaMiB: before - after, idleDiscarded: true, pinnedPreserved: true, tabIdChanged: state.id !== idle.id }));
+    assert.equal((await cdp.evaluate(`chrome.tabs.get(${protectedTab.id})`)).discarded, false, "individual tab exception stays awake");
+    console.log(JSON.stringify({ beforeMiB: before, afterMiB: after, deltaMiB: before - after, idleDiscarded: true, pinnedPreserved: true, tabExceptionPreserved: true, tabIdChanged: state.id !== idle.id }));
     assert.ok(before > after, "Brave RSS should fall after discarding the 128 MiB test tab");
     await cdp.evaluate(`chrome.tabs.update(${state.id},{active:true})`);
     await until(async () => {
