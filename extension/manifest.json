@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "Brave Tab Standby",
+  "version": "0.1.0",
+  "description": "Unload inactive tabs while keeping them visible in the tab strip.",
+  "permissions": ["tabs", "alarms", "storage"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Brave Tab Standby",
+    "default_popup": "popup.html"
+  },
+  "minimum_chrome_version": "120"
+}
+

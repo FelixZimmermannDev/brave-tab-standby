@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tab Standby</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main>
+    <h1>Tab Standby</h1>
+    <label class="row"><span>Automatic standby</span><input id="enabled" type="checkbox"></label>
+    <label class="stack">After being inactive for
+      <select id="delay">
+        <option value="0.5">30 seconds</option>
+        <option value="1">1 minute</option>
+        <option value="5">5 minutes</option>
+        <option value="15">15 minutes</option>
+        <option value="30">30 minutes</option>
+      </select>
+    </label>
+    <label class="row"><span>Include pinned tabs</span><input id="includePinned" type="checkbox"></label>
+    <label class="row"><span>Keep audible tabs awake</span><input id="skipAudible" type="checkbox"></label>
+    <label class="stack">Sites to keep awake <small>One domain per line, e.g. music.example.com</small>
+      <textarea id="exceptions" rows="3" spellcheck="false"></textarea>
+    </label>
+    <button id="save">Save settings</button>
+    <button id="discard" class="secondary">Discard inactive tabs now</button>
+    <p id="status" role="status"></p>
+  </main>
+  <script src="rules.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
+
