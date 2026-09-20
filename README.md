@@ -6,12 +6,12 @@ The browser extension must use JavaScript because Chrome's extension APIs are Ja
 
 ## Install locally
 
-**One-click download:** [Download `brave-tab-standby.zip`](https://github.com/FelixZimmermannDev/brave-tab-standby/releases/latest/download/brave-tab-standby.zip)
+**One-click download:** [Download `brave-tab-standby.zip` for v0.2.0](https://github.com/FelixZimmermannDev/brave-tab-standby/releases/download/v0.2.0/brave-tab-standby.zip)
 
 Or download and extract it from a terminal:
 
 ```sh
-curl -fL -o brave-tab-standby.zip 'https://github.com/FelixZimmermannDev/brave-tab-standby/releases/latest/download/brave-tab-standby.zip'
+curl -fL -o brave-tab-standby.zip 'https://github.com/FelixZimmermannDev/brave-tab-standby/releases/download/v0.2.0/brave-tab-standby.zip'
 unzip brave-tab-standby.zip -d brave-tab-standby-extension
 ```
 
@@ -38,7 +38,13 @@ python3 standby_tool.py browser-test
 python3 standby_tool.py package
 ```
 
-The last command writes a ZIP to `dist/` for local sharing. The Python test harness runs the JavaScript scheduler against a fake browser API, including tab switching, five-minute delay, pinned tabs, exceptions, audio, and reactivation.
+The last command writes a ZIP to `dist/` for local sharing and prints its SHA-256 checksum. Packaging verifies that the Python project and extension use the same version. The Python test harness runs the JavaScript scheduler against a fake browser API, including tab switching, five-minute delay, pinned tabs, exceptions, audio, and reactivation.
+
+## Release checklist
+
+1. Update the version in `extension/manifest.json`, `pyproject.toml`, and the two versioned links above.
+2. Run `python3 standby_tool.py test` and `python3 standby_tool.py package`.
+3. Create a GitHub release with tag `v<version>` and upload `dist/brave-tab-standby.zip`.
 
 `browser-test` launches an isolated headless Brave profile (macOS default path; override with `BRAVE_BINARY`), loads the unpacked extension, opens a 128 MiB test page, waits for automatic discard, and compares the browser process tree's RSS before and after. It then confirms that activating the tab reloads it. RSS is an approximate process metric; results vary with caching and shared memory.
 

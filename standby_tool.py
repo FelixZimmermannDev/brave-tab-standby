@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import subprocess
 import sys
@@ -12,6 +13,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 EXTENSION = ROOT / "extension"
 REQUIRED = ("manifest.json", "background.js", "rules.js", "popup.html", "popup.js", "popup.css")
+
+
+def project_version() -> str:
+    pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    for line in pyproject.splitlines():
+        if line.startswith("version = "):
+            return line.split('"', 2)[1]
+    raise ValueError("Missing project version")
 
 
 def check() -> None:
@@ -25,6 +34,8 @@ def check() -> None:
         raise ValueError("tabs, alarms, and storage permissions required")
     if manifest.get("background", {}).get("service_worker") != "background.js":
         raise ValueError("Expected background.js service worker")
+    if manifest.get("version") != project_version():
+        raise ValueError("Manifest and Python project versions must match")
     print("Manifest and extension files: OK")
 
 
@@ -43,7 +54,8 @@ def package() -> None:
     with zipfile.ZipFile(destination, "w", zipfile.ZIP_DEFLATED) as archive:
         for name in REQUIRED:
             archive.write(EXTENSION / name, name)
-    print(destination)
+    digest = hashlib.sha256(destination.read_bytes()).hexdigest()
+    print(f"{destination} (sha256: {digest})")
 
 
 def main() -> int:
