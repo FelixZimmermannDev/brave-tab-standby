@@ -6,10 +6,13 @@ The browser extension must use JavaScript because Chrome's extension APIs are Ja
 
 ## Install locally
 
-1. Open `brave://extensions` (or `chrome://extensions`).
-2. Enable **Developer mode**.
-3. Click **Load unpacked** and select the `extension` folder in this repository.
-4. Click the extension icon and enable automatic standby. The default delay is five minutes.
+1. Download [`brave-tab-standby.zip` from the latest release](https://github.com/FelixZimmermannDev/brave-tab-standby/releases/latest) and extract it to a folder you will keep. The extracted folder must contain `manifest.json` directly.
+2. Open `brave://extensions` (or `chrome://extensions`).
+3. Enable **Developer mode**.
+4. Click **Load unpacked** and select the extracted folder containing `manifest.json`.
+5. Click the extension icon, enable **Automatic standby**, choose a delay, and click **Save settings**. The default delay is five minutes.
+
+If you clone this repository instead, select its `extension` folder in step 4. Do not select the ZIP file itself; Brave needs the extracted folder.
 
 The extension starts paused until you enable it. Pinned tabs are included by default. Audible tabs, browser internal pages, and URLs in your exception list are skipped. A manual **Discard inactive tabs now** button helps you test it.
 
