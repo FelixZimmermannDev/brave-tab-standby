@@ -39,6 +39,7 @@ const chrome = {
   alarms: {
     get: async name => alarms[name],
     create: async (name, value) => { alarms[name] = value; },
+    clear: async name => { delete alarms[name]; return true; },
     onAlarm: event("alarm")
   },
   storage: { local: area(local), session: area(session), onChanged: event("changed") },
@@ -55,6 +56,8 @@ async function tick() {
 }
 
 (async () => {
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(alarms["standby-sweep"].when, 300_000, "one alarm is set for the first due tab");
   await tick();
   assert.deepEqual(discarded, []);
   now = 299_000;
@@ -82,6 +85,7 @@ async function tick() {
   local.settings.enabled = false;
   await tick();
   assert.equal(Object.keys(session.inactiveSince).length, 0, "pause clears timers");
+  assert.equal(alarms["standby-sweep"], undefined, "pause clears the pending alarm");
   tabs[0].discarded = false;
   now = 1_200_000;
   local.settings.enabled = true;
@@ -96,5 +100,8 @@ async function tick() {
   assert.equal(rules.matchesTabException({ id: 6 }, local.settings.tabExceptions), true);
   assert.equal(rules.matchesTabException({ id: 7 }, local.settings.tabExceptions), false);
   assert.equal(rules.isEligible({ id: 8, url: "https://sub.mail.example/path", active: false, autoDiscardable: true }, local.settings), false, "subdomains inherit site exceptions");
+  local.settings.delayMinutes = 0;
+  await tick();
+  assert.equal(alarms["standby-sweep"], undefined, "instant standby does not keep a polling alarm");
   console.log("Scheduler integration tests: OK");
 })().catch(error => { console.error(error); process.exitCode = 1; });

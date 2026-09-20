@@ -6,15 +6,15 @@ The browser extension must use JavaScript because Chrome's extension APIs are Ja
 
 ## Install locally
 
-**One-click download:** [Download `brave-tab-standby-v0.3.0.zip`](https://github.com/FelixZimmermannDev/brave-tab-standby/releases/download/v0.3.0/brave-tab-standby-v0.3.0.zip)
+**One-click download:** [Download `brave-tab-standby-v0.4.0.zip`](https://github.com/FelixZimmermannDev/brave-tab-standby/releases/download/v0.4.0/brave-tab-standby-v0.4.0.zip)
 
 Do not use GitHub's **Code → Download ZIP** button. That downloads the source repository as `brave-tab-standby-main.zip`; its `manifest.json` is inside the `extension` folder and it is not the packaged install file.
 
 Or download and extract it from a terminal:
 
 ```sh
-curl -fL -o brave-tab-standby-v0.3.0.zip 'https://github.com/FelixZimmermannDev/brave-tab-standby/releases/download/v0.3.0/brave-tab-standby-v0.3.0.zip'
-unzip brave-tab-standby-v0.3.0.zip -d brave-tab-standby-v0.3.0-extension
+curl -fL -o brave-tab-standby-v0.4.0.zip 'https://github.com/FelixZimmermannDev/brave-tab-standby/releases/download/v0.4.0/brave-tab-standby-v0.4.0.zip'
+unzip brave-tab-standby-v0.4.0.zip -d brave-tab-standby-v0.4.0-extension
 ```
 
 Then install it in Brave:
@@ -27,7 +27,11 @@ Then install it in Brave:
 
 If you clone this repository instead, select its `extension` folder in step 4. Do not select the ZIP file itself; Brave needs the extracted folder.
 
-The extension starts paused until you enable it. Choose **Instantly** to process all already-open eligible background tabs as soon as you save the setting; otherwise select a delay from 30 seconds to 30 minutes. Pinned tabs are included by default. Audible tabs, browser internal pages, sites in the exception list, and individually protected tabs are skipped. Use **Keep current tab awake** in the popup to protect one exact tab; the exception is saved locally and can be removed there. A manual **Discard inactive tabs now** button helps you test it.
+The extension starts paused until you enable it. Choose **Instantly** to process all already-open eligible background tabs as soon as you save the setting; otherwise select a delay from 30 seconds to 30 minutes. Pinned tabs are included by default. Audible tabs, browser internal pages, sites in the exception list, and individually protected tabs are skipped. Use **Keep current tab awake** in the popup to protect one exact tab; the exception is saved locally and can be removed there. A manual **Discard inactive tabs now** button helps you test it. Discarding a tab unloads its renderer process where that renderer is not shared with another tab.
+
+## Resource behavior
+
+Version 0.4.0 uses one one-time alarm at the earliest tab expiry instead of a permanent 30-second polling alarm. When standby is off or set to **Instantly**, it clears that alarm entirely, allowing its Manifest V3 service worker to become dormant. A one-time alarm still respects Chrome's 30-second minimum when a retry is necessary.
 
 ## Python harness
 

@@ -16,10 +16,25 @@ async function settings() {
   return rules.normalizeSettings(data.settings);
 }
 
-async function ensureAlarm() {
-  if (!(await chrome.alarms.get(ALARM_NAME))) {
-    await chrome.alarms.create(ALARM_NAME, { periodInMinutes: 0.5 });
+async function scheduleNextSweep(config, inactiveSince) {
+  if (!config.enabled || config.delayMinutes === 0) {
+    await chrome.alarms.clear(ALARM_NAME);
+    return;
   }
+
+  const dueTimes = Object.values(inactiveSince)
+    .filter(Number.isFinite)
+    .map(since => since + config.delayMinutes * 60_000);
+  if (!dueTimes.length) {
+    await chrome.alarms.clear(ALARM_NAME);
+    return;
+  }
+
+  // This is one alarm for the next eligible tab, not a permanent polling loop.
+  // Chrome permits alarms no sooner than 30 seconds, so a failed discard retries
+  // at most once after that minimum interval.
+  const when = Math.max(Date.now() + 30_000, Math.min(...dueTimes));
+  await chrome.alarms.create(ALARM_NAME, { when });
 }
 
 async function sweep({ force = false } = {}) {
@@ -33,6 +48,7 @@ async function sweep({ force = false } = {}) {
 
   if (!config.enabled && !force) {
     await chrome.storage.session.set({ [STATE_KEY]: {} });
+    await scheduleNextSweep(config, {});
     return { discarded: 0, eligible: 0 };
   }
 
@@ -55,21 +71,16 @@ async function sweep({ force = false } = {}) {
   }
 
   await chrome.storage.session.set({ [STATE_KEY]: next });
+  await scheduleNextSweep(config, next);
   return { discarded, eligible: Object.keys(next).length };
 }
 
 chrome.runtime.onInstalled.addListener(() => {
-  serialized(async () => {
-    await ensureAlarm();
-    await sweep();
-  });
+  serialized(() => sweep());
 });
 
 chrome.runtime.onStartup.addListener(() => {
-  serialized(async () => {
-    await ensureAlarm();
-    await sweep();
-  });
+  serialized(() => sweep());
 });
 
 chrome.tabs.onActivated.addListener(() => serialized(() => sweep()));
@@ -88,10 +99,9 @@ chrome.storage.onChanged.addListener((changes, area) => {
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message?.type !== "discard-now" && message?.type !== "status") return false;
   serialized(async () => {
-    await ensureAlarm();
     return sweep({ force: message.type === "discard-now" });
   }).then(sendResponse, error => sendResponse({ error: String(error) }));
   return true;
 });
 
-ensureAlarm().catch(error => console.error("Tab Standby alarm:", error));
+serialized(() => sweep()).catch(error => console.error("Tab Standby scheduler:", error));
